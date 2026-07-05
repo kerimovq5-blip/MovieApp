@@ -39,14 +39,29 @@
 			path = MainController;
 			sourceTree = "<group>";
 		};
-		F2CC689B2FEFEF0000A76DC5 /* Coordinator */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Coordinator;
-			sourceTree = "<group>";
-		};
 		F2CC68A22FEFF28400A76DC5 /* MainTabBarController */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = MainTabBarController;
+			sourceTree = "<group>";
+		};
+		F2CC68AC2FEFFEBD00A76DC5 /* Managers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		F2CC68D52FF13B4100A76DC5 /* MovieAppListDto */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MovieAppListDto;
+			sourceTree = "<group>";
+		};
+		F2CC68E72FF2851100A76DC5 /* CollectionCell */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CollectionCell;
+			sourceTree = "<group>";
+		};
+		F2CC69B02FF57AB700A76DC5 /* Account */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Account;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -65,8 +80,11 @@
 		F2CC68752FEFEDF200A76DC5 = {
 			isa = PBXGroup;
 			children = (
+				F2CC69B02FF57AB700A76DC5 /* Account */,
+				F2CC68E72FF2851100A76DC5 /* CollectionCell */,
+				F2CC68D52FF13B4100A76DC5 /* MovieAppListDto */,
+				F2CC68AC2FEFFEBD00A76DC5 /* Managers */,
 				F2CC68A22FEFF28400A76DC5 /* MainTabBarController */,
-				F2CC689B2FEFEF0000A76DC5 /* Coordinator */,
 				F2CC689A2FEFEECF00A76DC5 /* MainController */,
 				F2CC68962FEFEE9400A76DC5 /* UItils */,
 				F2CC68802FEFEDF200A76DC5 /* Default */,
@@ -101,8 +119,11 @@
 				F2CC68802FEFEDF200A76DC5 /* Default */,
 				F2CC68962FEFEE9400A76DC5 /* UItils */,
 				F2CC689A2FEFEECF00A76DC5 /* MainController */,
-				F2CC689B2FEFEF0000A76DC5 /* Coordinator */,
 				F2CC68A22FEFF28400A76DC5 /* MainTabBarController */,
+				F2CC68AC2FEFFEBD00A76DC5 /* Managers */,
+				F2CC68D52FF13B4100A76DC5 /* MovieAppListDto */,
+				F2CC68E72FF2851100A76DC5 /* CollectionCell */,
+				F2CC69B02FF57AB700A76DC5 /* Account */,
 			);
 			name = MovieApp;
 			packageProductDependencies = (
@@ -174,12 +195,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MovieApp/Info.plist;
+				INFOPLIST_FILE = Default/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -209,12 +230,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MovieApp/Info.plist;
+				INFOPLIST_FILE = Default/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
