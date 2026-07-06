@@ -6,10 +6,10 @@ final class ViewController: UIViewController {
     private var currentMovies: [String] = []
 
     private enum Segment: Int {
-        case nowPlaying = 0
-        case topRated   = 1
-        case upcoming   = 2
-        case popular    = 3
+        case nowPlaying
+        case topRated
+        case upcoming
+        case popular
     }
 
 
@@ -23,22 +23,30 @@ final class ViewController: UIViewController {
 
     private lazy var searchTextField: UITextField = {
         let textfield = UITextField()
-        textfield.placeholder = "   Search"
         textfield.layer.cornerRadius = 12
         textfield.layer.masksToBounds = true
-        textfield.textColor = .searchcolor
         textfield.backgroundColor = .searchBackground
-        let leftpading = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 0))
-        textfield.leftView = leftpading
+        textfield.textColor = .black
+        textfield.tintColor = .searchcolor
+        textfield.attributedPlaceholder = NSAttributedString(
+            string: "Search",
+            attributes: [.foregroundColor: AssetColors.searchcolor.color]
+        )
+
+        let leftPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
+        textfield.leftView = leftPadding
         textfield.leftViewMode = .always
+
         let iconView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        let rightpading = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 25))
-        rightpading.addSubview(iconView)
-        textfield.rightView = rightpading
+        iconView.tintColor = .searchcolor
+        iconView.contentMode = .scaleAspectFit
+        iconView.frame = CGRect(x: 8, y: 10, width: 20, height: 20)
+
+        let rightContainer = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        rightContainer.addSubview(iconView)
+        textfield.rightView = rightContainer
         textfield.rightViewMode = .always
-        
-        textfield.rightView = iconView
-        textfield.rightViewMode = .always
+
         return textfield
     }()
 
@@ -97,7 +105,7 @@ final class ViewController: UIViewController {
             .top(view.safeAreaLayoutGuide.topAnchor).0
             .leading(view.safeAreaLayoutGuide.leadingAnchor, 20).0
             .trailing(view.safeAreaLayoutGuide.trailingAnchor).0
-            .height(50)
+            .height(20)
         
             
         searchTextField
