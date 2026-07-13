@@ -10,6 +10,6 @@ import UIKit
 final class WatchListController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .mainBackground
     }
 }

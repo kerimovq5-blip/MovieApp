@@ -58,4 +58,15 @@ final class MovieAppService {
                 .getTopRatedMovies(page: page),
             completion: completion)
     }
+    
+    func getMovieDetail(
+           id: Int,
+           completion: @escaping (Result<MovieDetailDto, Error>) -> Void
+       ) {
+           NetworkManager.shared.request(
+               endPoint: MovieEndPoint
+                   .movieDetail(id: id),
+               completion: completion)
+       }
+
 }

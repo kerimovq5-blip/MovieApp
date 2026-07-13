@@ -74,4 +74,9 @@ struct MovieDto: Decodable {
         let cleanPath = posterPath.hasPrefix("/") ? String(posterPath.dropFirst()) : posterPath
         return URL(string: "https://image.tmdb.org/t/p/w500/\(cleanPath)")
     }
+    
+    var postertitel: String? {
+        guard let title = self.title else { return nil }
+        return title
+    }
 }

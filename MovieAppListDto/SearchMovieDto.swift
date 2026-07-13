@@ -1,17 +1,16 @@
 //
-//  TopRatedDto.swift
+//  SearchMovieDto.swift
 //  MovieApp
 //
-//  Created by Kerimov Qehreman on 04.07.26.
+//  Created by Kerimov Qehreman on 12.07.26.
 //
-
 
 import Foundation
 
-// MARK: - TopRatedDto
-struct TopRatedDto: Decodable {
+// MARK: - SearchMovieDto
+struct SearchMovieDto: Decodable {
     let page: Int?
-    let results: [TopRatedMovieDto]?
+    let results: [SearchDto]?
     let totalPages: Int?
     let totalResults: Int?
 
@@ -24,7 +23,7 @@ struct TopRatedDto: Decodable {
 }
 
 // MARK: - Result
-struct TopRatedMovieDto: Decodable {
+struct SearchDto: Decodable {
     let adult: Bool?
     let backdropPath: String?
     let genreIds: [Int]?
@@ -55,16 +54,5 @@ struct TopRatedMovieDto: Decodable {
         case video = "video"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
-    }
-    var posterUrl: URL? {
-        guard let posterPath = self.posterPath else { return nil }
-        
-        let cleanPath = posterPath.hasPrefix("/") ? String(posterPath.dropFirst()) : posterPath
-        return URL(string: "https://image.tmdb.org/t/p/w500/\(cleanPath)")
-    }
-    
-    var postertitel: String? {
-        guard let title = self.title else { return nil }
-        return title
     }
 }

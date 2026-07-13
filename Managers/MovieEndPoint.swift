@@ -13,29 +13,24 @@ enum MovieEndPoint : EndPoint {
     case getTopRatedMovies(page : Int)
     case getUpcomingMovies(page : Int)
     case trendingMovies(page : Int)
+    case movieDetail(id : Int)
     
     
     var path: String {
-        var path = "/movie"
         switch self {
             case .getNowPlayingMovies :
-            path += "/now_playing"
-            return path
+            return "/movie/now_playing"
         case .getPopularMovies:
-            path += "/popular"
-            return path
+            return "/movie/popular"
         case .getTopRatedMovies:
-           path += "/top_rated"
-            return path
+            return "/movie/top_rated"
         case .getUpcomingMovies:
-           path += "/upcoming"
-            return path
+            return "/movie/upcoming"
         case .trendingMovies:
-            path += "/trending/all/week"
-            return path
+            return "/trending/all/week"
+        case .movieDetail(let id):
+            return "/movie/\(id)"
         }
-        
-       
     }
     var method: HTTPMethod {
         switch self {
@@ -43,7 +38,8 @@ enum MovieEndPoint : EndPoint {
                 .getPopularMovies,
                 .getTopRatedMovies,
                 .getUpcomingMovies,
-                .trendingMovies:
+                .trendingMovies,
+                .movieDetail:
             return .get
         }
        
@@ -56,6 +52,8 @@ enum MovieEndPoint : EndPoint {
                 .getUpcomingMovies(let page),
                 .trendingMovies(let page):
             return [.init(name: "page", value: "\(page)")]
+        case .movieDetail:
+            return []
        
         }
        
@@ -67,7 +65,8 @@ enum MovieEndPoint : EndPoint {
         .getPopularMovies,
         .getTopRatedMovies,
         .getUpcomingMovies,
-        .trendingMovies:
+        .trendingMovies,
+        .movieDetail:
             return nil
         
         }

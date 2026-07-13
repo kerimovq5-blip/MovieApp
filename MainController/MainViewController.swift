@@ -3,7 +3,7 @@ import UIKit
 final class ViewController: UIViewController {
 
 
-    private var currentMovies: [String] = []
+    private var currentMovies: [(posterUrl: String, title: String, id: Int)] = []
 
     private enum Segment: Int {
         case nowPlaying
@@ -83,8 +83,14 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mainBackground
+        navigationItem.backButtonTitle = ""
         setupHierarchy()
         setupLayout()
+        trendingView.onSelectMovie = { [weak self] movieId in
+            guard let self else { return }
+            let vc = DetailViewController(movieId: movieId)
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
         fetchMovies(for: .nowPlaying)
     }
 
@@ -141,7 +147,10 @@ final class ViewController: UIViewController {
                 guard let self else { return }
                 switch result {
                 case .success(let dto):
-                    self.currentMovies = dto.results?.compactMap { $0.posterUrl?.absoluteString } ?? []
+                    self.currentMovies = dto.results?.compactMap { movie -> (posterUrl: String, title: String, id: Int)? in
+                        guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
+                        return (url, movie.title ?? "", id)
+                    } ?? []
                     self.collectionView.reloadData()
                 case .failure(let error):
                     print(error.localizedDescription)
@@ -151,9 +160,9 @@ final class ViewController: UIViewController {
                     guard let self else { return }
                     switch result {
                     case .success(let dto):
-                        let movies = dto.results?.compactMap { movie -> (String, String)? in
-                            guard let url = movie.posterUrl?.absoluteString else { return nil }
-                            return (url, movie.title ?? "")
+                        let movies = dto.results?.compactMap { movie -> (posterUrl: String, title: String, id: Int)? in
+                            guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
+                            return (url, movie.title ?? "", id)
                         } ?? []
                         DispatchQueue.main.async {
                             self.trendingView.movies = movies
@@ -169,7 +178,10 @@ final class ViewController: UIViewController {
                 guard let self else { return }
                 switch result {
                 case .success(let dto):
-                    self.currentMovies = dto.results?.compactMap { $0.posterUrl?.absoluteString } ?? []
+                    self.currentMovies = dto.results?.compactMap { movie -> (posterUrl: String, title: String, id: Int)? in
+                        guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
+                        return (url, movie.title ?? "", id)
+                    } ?? []
                     self.collectionView.reloadData()
                 case .failure(let error):
                     print(error.localizedDescription)
@@ -181,7 +193,10 @@ final class ViewController: UIViewController {
                 guard let self else { return }
                 switch result {
                 case .success(let dto):
-                    self.currentMovies = dto.results?.compactMap { $0.posterUrl?.absoluteString } ?? []
+                    self.currentMovies = dto.results?.compactMap { movie -> (posterUrl: String, title: String, id: Int)? in
+                        guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
+                        return (url, movie.title ?? "", id)
+                    } ?? []
                     self.collectionView.reloadData()
                 case .failure(let error):
                     print(error.localizedDescription)
@@ -193,7 +208,10 @@ final class ViewController: UIViewController {
                 guard let self else { return }
                 switch result {
                 case .success(let dto):
-                    self.currentMovies = dto.results?.compactMap { $0.posterUrl?.absoluteString } ?? []
+                    self.currentMovies = dto.results?.compactMap { movie -> (posterUrl: String, title: String, id: Int)? in
+                        guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
+                        return (url, movie.title ?? "", id)
+                    } ?? []
                     self.collectionView.reloadData()
                 case .failure(let error):
                     print(error.localizedDescription)
@@ -224,13 +242,20 @@ extension ViewController: UICollectionViewDataSource {
         ) as? ImageViewCollectionCell else {
             return UICollectionViewCell()
         }
-        cell.configure(data: currentMovies[indexPath.item])
+        cell.configure(data: currentMovies[indexPath.item].posterUrl)
         return cell
     }
 }
 
 
 extension ViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let vc = DetailViewController(movieId: currentMovies[indexPath.item].id)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {

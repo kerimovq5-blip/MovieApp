@@ -7,9 +7,11 @@
 import UIKit
 final class TrendingView: UIView {
 
-    var movies: [(posterUrl: String, title: String)] = [] {
+    var movies: [(posterUrl: String, title: String, id: Int)] = [] {
         didSet { collectionView.reloadData() }
     }
+
+    var onSelectMovie: ((Int) -> Void)?
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -79,6 +81,11 @@ extension TrendingView: UICollectionViewDataSource {
         let movie = movies[indexPath.item]
         cell.configure(posterUrl: movie.posterUrl, title: movie.title)
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        onSelectMovie?(movies[indexPath.item].id)
     }
 }
 extension TrendingView: UICollectionViewDelegateFlowLayout {
