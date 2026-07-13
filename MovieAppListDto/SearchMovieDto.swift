@@ -55,4 +55,18 @@ struct SearchDto: Decodable {
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
     }
+    var posterUrl: URL? {
+        guard let posterPath else { return nil }
+        let cleanPath = posterPath.hasPrefix("/") ? String(posterPath.dropFirst()) : posterPath
+        return URL(string: "https://image.tmdb.org/t/p/w500/\(cleanPath)")
+    }
+    var ratingText: String? {
+        guard let voteAverage else { return nil }
+        return String(format: "%.1f", voteAverage)
+    }
+    var postertitle: String? {
+        guard let title = self.title else { return nil }
+        return title
+    }
+
 }

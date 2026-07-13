@@ -68,5 +68,14 @@ final class MovieAppService {
                    .movieDetail(id: id),
                completion: completion)
        }
-
+    func searchMovies(
+          query: String,
+          page: Int = 1,
+          completion: @escaping (Result<SearchDto, Error>) -> Void
+      ) {
+          NetworkManager.shared.request(
+              endPoint: MovieEndPoint
+                  .searchMovies(query: query, page: page),
+              completion: completion)
+      }
 }

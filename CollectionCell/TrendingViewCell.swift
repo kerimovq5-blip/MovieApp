@@ -42,8 +42,7 @@ final class TrendingCell: UICollectionViewCell {
     }
 
     private func setupView() {
-        contentView.layer.cornerRadius = 16
-        contentView.clipsToBounds = true
+        
         contentView.addSubviews(posterImageView, titleLabel)
     }
 

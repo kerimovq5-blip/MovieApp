@@ -14,6 +14,7 @@ enum MovieEndPoint : EndPoint {
     case getUpcomingMovies(page : Int)
     case trendingMovies(page : Int)
     case movieDetail(id : Int)
+    case searchMovies(query : String, page : Int)
     
     
     var path: String {
@@ -30,6 +31,8 @@ enum MovieEndPoint : EndPoint {
             return "/trending/all/week"
         case .movieDetail(let id):
             return "/movie/\(id)"
+        case .searchMovies:
+            return "/search/movie"
         }
     }
     var method: HTTPMethod {
@@ -39,7 +42,8 @@ enum MovieEndPoint : EndPoint {
                 .getTopRatedMovies,
                 .getUpcomingMovies,
                 .trendingMovies,
-                .movieDetail:
+                .movieDetail,
+                .searchMovies:
             return .get
         }
        
@@ -54,6 +58,11 @@ enum MovieEndPoint : EndPoint {
             return [.init(name: "page", value: "\(page)")]
         case .movieDetail:
             return []
+        case .searchMovies(let query, let page):
+            return [
+                .init(name: "query", value: query),
+                .init(name: "page", value: "\(page)")
+            ]
        
         }
        
@@ -66,7 +75,8 @@ enum MovieEndPoint : EndPoint {
         .getTopRatedMovies,
         .getUpcomingMovies,
         .trendingMovies,
-        .movieDetail:
+        .movieDetail,
+        .searchMovies:
             return nil
         
         }

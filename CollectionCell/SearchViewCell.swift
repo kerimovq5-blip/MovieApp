@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SearchViewCell: UITableViewCell {
+final class SearchViewCell: UICollectionViewCell {
     
     
     private lazy var posterThumbnailView: UIImageView = {
@@ -72,9 +72,19 @@ final class SearchViewCell: UITableViewCell {
         return stack
     }()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style : style , reuseIdentifier: reuseIdentifier)
-        configureView()
+    override init(frame : CGRect) {
+        super.init(frame: frame)
+        setupLayout()
+    }
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        posterThumbnailView.image = nil
+        titleLabel.text = nil
+        ratingLabel.text = nil
+        ratingBadgeView.isHidden = true
+        yearItem.label.text = nil
+        durationItem.label.text = nil
+        genreItem.label.text = nil
     }
 
     required init?(coder: NSCoder) {
@@ -82,7 +92,7 @@ final class SearchViewCell: UITableViewCell {
     }
     
     
-    private func configureView() {
+    private func setupLayout() {
         
         contentView.addSubviews(
             posterThumbnailView ,
@@ -145,5 +155,25 @@ final class SearchViewCell: UITableViewCell {
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.white.withAlphaComponent(0.7)
         return label
+    }
+    func configure(posterURL: String?, title: String, rating: Double) {
+           titleLabel.text = title
+           ratingLabel.text = String(format: "%.1f", rating)
+           ratingBadgeView.isHidden = false
+    
+           guard let posterURL else { return }
+           NetworkManager.shared.loadData(urlString: posterURL) {
+               [weak self] result in
+               guard let self else { return }
+               switch result {
+               case .success(let data):
+                   DispatchQueue.main.async {
+                       self.posterThumbnailView.image = UIImage(data: data)
+                   }
+               case .failure(let error):
+                   print(error.localizedDescription)
+            }
+        }
+        
     }
 }
