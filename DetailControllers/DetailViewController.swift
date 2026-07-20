@@ -411,14 +411,12 @@ final class DetailViewController: UIViewController {
         }
     }
 
-    /// castCollectionView xarici scrollView-in içində olduğu və özü
-    /// sürüşmədiyi üçün (isScrollEnabled = false), hündürlüyünü aktyor
-    /// sayına görə ƏLLƏ hesablayıb constraint-ə yazmalıyıq.
+    
     private func updateCastCollectionHeight() {
         let columns: CGFloat = 3
         let itemHeight: CGFloat = 140
         let lineSpacing: CGFloat = 20
-        let topBottomInset: CGFloat = 20 // insetForSectionAt: top 10 + bottom 10
+        let topBottomInset: CGFloat = 20
 
         let rows = ceil(CGFloat(castMembers.count) / columns)
         let height = rows > 0

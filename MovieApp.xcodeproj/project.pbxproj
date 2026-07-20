@@ -69,6 +69,11 @@
 			path = DetailControllers;
 			sourceTree = "<group>";
 		};
+		F2CC6ECC300E361E00A76DC5 /* MovieListModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MovieListModel;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +90,7 @@
 		F2CC68752FEFEDF200A76DC5 = {
 			isa = PBXGroup;
 			children = (
+				F2CC6ECC300E361E00A76DC5 /* MovieListModel */,
 				F2CC6D843009288900A76DC5 /* DetailControllers */,
 				F2CC69B02FF57AB700A76DC5 /* Account */,
 				F2CC68E72FF2851100A76DC5 /* CollectionCell */,
@@ -131,6 +137,7 @@
 				F2CC68E72FF2851100A76DC5 /* CollectionCell */,
 				F2CC69B02FF57AB700A76DC5 /* Account */,
 				F2CC6D843009288900A76DC5 /* DetailControllers */,
+				F2CC6ECC300E361E00A76DC5 /* MovieListModel */,
 			);
 			name = MovieApp;
 			packageProductDependencies = (
