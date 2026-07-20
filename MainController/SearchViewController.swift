@@ -66,17 +66,18 @@ final class SearchViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         setUp()
         setConstraints()
-        setupNavigationBar()
+        
     }
 
     private func setupNavigationBar() {
         title = "Search"
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        
     }
-
 
     private func setUp() {
         view.backgroundColor = .mainBackground
@@ -115,11 +116,13 @@ final class SearchViewController: UIViewController {
     }
 
     private func performSearch(query: String) {
-        MovieAppService.shared.searchMovies(query: query) { [weak self] result in
+        MovieAppService.shared.searchMovies(query: query) {
+            [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let dto):
-                self.viewModels = dto.results?.compactMap { movie -> (posterUrl: String, title: String, rating: Double, id: Int)? in
+                self.viewModels = dto.results?.compactMap {
+                    movie -> (posterUrl: String, title: String, rating: Double, id: Int)? in
                     guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
                     return (url, movie.title ?? "", movie.voteAverage ?? 0, id)
                 } ?? []
@@ -136,7 +139,10 @@ extension SearchViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        CGSize(width: collectionView.bounds.width, height: 160)
+        let width: CGFloat = collectionView.bounds.width - 40
+        let height: CGFloat = 160
+        
+        return CGSize(width: width, height: height)
     }
 }
 
@@ -148,6 +154,9 @@ extension SearchViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+       10
+    }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
@@ -156,6 +165,7 @@ extension SearchViewController: UICollectionViewDataSource {
         ) as? SearchViewCell else { return UICollectionViewCell() }
         let movie = viewModels[indexPath.row]
         cell.configure(
+            movieId: movie.id,
             posterURL: movie.posterUrl,
             title: movie.title,
             rating: movie.rating)

@@ -55,7 +55,7 @@ final class MovieAppService {
     ){
         NetworkManager.shared.request(
             endPoint:MovieEndPoint
-                .getTopRatedMovies(page: page),
+                .trendingMovies(page: page),
             completion: completion)
     }
     
@@ -71,11 +71,21 @@ final class MovieAppService {
     func searchMovies(
           query: String,
           page: Int = 1,
-          completion: @escaping (Result<SearchDto, Error>) -> Void
+          completion: @escaping (Result<SearchMovieDto, Error>) -> Void
       ) {
           NetworkManager.shared.request(
               endPoint: MovieEndPoint
                   .searchMovies(query: query, page: page),
               completion: completion)
       }
+    
+    func castMovies(
+        id: Int,
+        completion: @escaping (Result<CastProfilDto, Error>) -> Void
+    ) {
+        NetworkManager.shared.request(
+            endPoint: MovieEndPoint
+                .castMovies(id: id),
+            completion: completion)
+    }
 }

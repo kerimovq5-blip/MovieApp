@@ -8,6 +8,7 @@ import Foundation
 
 enum  AccountEndPoint: EndPoint {
     case addToWatchRequestList(encodable : Encodable)
+    case getWatchlistMovies(page : Int)
     var basePath : String {
         return "/account/\(23258948)"
     }
@@ -15,6 +16,8 @@ enum  AccountEndPoint: EndPoint {
         switch self {
             case .addToWatchRequestList:
             return basePath+"/watchlist"
+        case .getWatchlistMovies:
+            return "\(basePath)/watchlist/movies"
         }
     }
 
@@ -22,6 +25,8 @@ enum  AccountEndPoint: EndPoint {
         switch self {
         case .addToWatchRequestList:
             return .post
+        case .getWatchlistMovies:
+            return .get
         }
     }
 
@@ -29,6 +34,8 @@ enum  AccountEndPoint: EndPoint {
         switch self {
         case . addToWatchRequestList:
             return []
+        case .getWatchlistMovies(page: let page):
+           return [URLQueryItem(name: "page", value: "\(page)")]
         }
     }
 
@@ -36,7 +43,9 @@ enum  AccountEndPoint: EndPoint {
        switch self {
        case .addToWatchRequestList( let encodable):
            return .encodable(encodable)
-        }
+       case .getWatchlistMovies(page: _):
+           return nil
+       }
     }
 
 }

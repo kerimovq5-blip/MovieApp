@@ -33,8 +33,7 @@ final class TabbarController: UITabBarController {
         lazy var controller = SearchViewController()
         controller.tabBarItem.title = "Search"
         controller.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-        controller.tabBarItem.selectedImage = UIImage(systemName: "magnifyingglass.circle.fill")
-        
+        controller.navigationController?.navigationBar.isHidden = true
         return controller
     }
     func whatchListController() -> UIViewController {

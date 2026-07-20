@@ -17,13 +17,7 @@ final class TrendingCell: UICollectionViewCell {
         return iv
     }()
 
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.textColor = .white
-        label.numberOfLines = 2
-        return label
-    }()
+   
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -38,12 +32,12 @@ final class TrendingCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         posterImageView.image = nil
-        titleLabel.text = nil
+        
     }
 
     private func setupView() {
         
-        contentView.addSubviews(posterImageView, titleLabel)
+        contentView.addSubviews(posterImageView)
     }
 
     private func setupConstraints() {
@@ -53,16 +47,14 @@ final class TrendingCell: UICollectionViewCell {
             .trailing(contentView.trailingAnchor).0
             .bottom(contentView.bottomAnchor)
 
-        titleLabel
-            .leading(contentView.leadingAnchor, 12).0
-            .trailing(contentView.trailingAnchor, -12).0
-            .bottom(contentView.bottomAnchor, -12)
+       
     }
 
     func configure(posterUrl: String?, title: String?) {
-        titleLabel.text = title
+        
         guard let posterUrl else { return }
-        NetworkManager.shared.loadData(urlString: posterUrl) { [weak self] result in
+        NetworkManager.shared.loadData(urlString: posterUrl) {
+            [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let data):

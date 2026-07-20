@@ -18,4 +18,13 @@ final class AccountApiService {
             
         
     }
+    func getWatchList<T : Decodable>(page : Int , completion: @escaping (Result< T, Error>) -> Void
+    ) {
+        NetworkManager.shared
+            .request(
+                endPoint:AccountEndPoint.getWatchlistMovies(page: page),
+                completion: completion
+            )
+    }
+    
 }

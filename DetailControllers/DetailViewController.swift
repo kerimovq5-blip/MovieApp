@@ -8,8 +8,9 @@
 import UIKit
 
 final class DetailViewController: UIViewController {
-
-    private enum DetailTab: Int, CaseIterable {
+    
+    
+    private enum DetailTab: Int , CaseIterable {
         case about, reviews, cast
 
         var title: String {
@@ -24,11 +25,17 @@ final class DetailViewController: UIViewController {
     private let movieId: Int
     private var selectedTab: DetailTab = .about
     
+    
     private var isBookmarked = false
     private var movieDetail: MovieDetailDto?
+    
+    private var castMembers: [CastDto] = []
 
     private var tabUnderlineLeading: NSLayoutConstraint?
     private var tabButtons: [UIButton] = []
+    
+    private var contentBottomConstraint: NSLayoutConstraint?
+    private var castCollectionHeight: NSLayoutConstraint?
 
     
 
@@ -113,7 +120,8 @@ final class DetailViewController: UIViewController {
             yearItem.container,
             separator1,
             durationItem.container,
-            separator2, genreItem.container
+            separator2,
+            genreItem.container
         ])
         stack.axis = .horizontal
         stack.spacing = 10
@@ -131,13 +139,13 @@ final class DetailViewController: UIViewController {
 
     private lazy var tabUnderlineView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.white.withAlphaComponent(0.75)
         return view
     }()
 
     private lazy var tabSeparatorLine: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.15)
+        view.backgroundColor = .white
         return view
     }()
 
@@ -151,6 +159,35 @@ final class DetailViewController: UIViewController {
 
     
 
+    private lazy var castCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collection.backgroundColor = .clear
+        collection.showsHorizontalScrollIndicator = false
+        collection.isScrollEnabled = false
+        collection.isHidden = true
+        collection.dataSource = self
+        collection.delegate = self
+        collection
+            .register(
+                CastViewCell.self,
+                forCellWithReuseIdentifier: CastViewCell.Identifier
+            )
+        return collection
+    }()
+
+    private lazy var castEmptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Don't have any cast."
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textColor = UIColor.white.withAlphaComponent(0.5)
+        label.isHidden = true
+        return label
+    }()
+
+    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mainBackground
@@ -159,6 +196,7 @@ final class DetailViewController: UIViewController {
         setupHierarchy()
         setupLayout()
         fetchDetail()
+        fetchCredits()
     }
 
     
@@ -193,8 +231,6 @@ final class DetailViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        
-
         contentView.addSubviews(
             backdropImageView,
             posterThumbnailView,
@@ -203,9 +239,11 @@ final class DetailViewController: UIViewController {
             infoStackView,
             tabStackView,
             tabSeparatorLine,
-            tabUnderlineView,
-            descriptionLabel
+            descriptionLabel,
+            castCollectionView,
+            castEmptyLabel
         )
+        tabSeparatorLine.addSubview(tabUnderlineView)
     }
 
     private func setupLayout() {
@@ -221,6 +259,7 @@ final class DetailViewController: UIViewController {
             .trailing(scrollView.trailingAnchor).0
             .bottom(scrollView.bottomAnchor).0
             .width(scrollView.widthAnchor)
+        
         backdropImageView
             .top(contentView.topAnchor, 16).0
             .leading(contentView.leadingAnchor).0
@@ -239,7 +278,6 @@ final class DetailViewController: UIViewController {
             .height(24).0
             .width(54)
         
-
         ratingIcon
             .leading(ratingBadgeView.leadingAnchor, 10).0
             .centerY(ratingBadgeView.centerYAnchor).0
@@ -271,21 +309,43 @@ final class DetailViewController: UIViewController {
             .top(tabStackView.bottomAnchor, 8).0
             .leading(contentView.leadingAnchor, 16).0
             .trailing(contentView.trailingAnchor, -16).0
-            .height(1)
+            .height(2)
 
+       
         tabUnderlineView
-            .top(tabSeparatorLine.topAnchor).0
             .height(2).0
-            .leading(tabStackView.leadingAnchor)
-        tabUnderlineView.widthAnchor.constraint(equalTo: tabStackView.widthAnchor, multiplier: 1.0 / CGFloat(DetailTab.allCases.count)).isActive = true
+            .centerY(tabSeparatorLine.centerYAnchor).0
+            .width(tabSeparatorLine.widthAnchor, 1.0 / CGFloat(DetailTab.allCases.count))
+        let initialUnderlineLeading = tabUnderlineView
+            .leading(tabSeparatorLine.leadingAnchor).1
         
-
+        tabUnderlineLeading = initialUnderlineLeading
+        
         descriptionLabel
             .top(tabSeparatorLine.bottomAnchor, 20).0
             .leading(contentView.leadingAnchor, 16).0
-            .trailing(contentView.trailingAnchor, -16).0
-            .bottom(contentView.bottomAnchor, -32)
+            .trailing(contentView.trailingAnchor, -16)
+
+        let castHeight = castCollectionView
+            .top(tabSeparatorLine.bottomAnchor, 20).0
+            .leading(contentView.leadingAnchor).0
+            .trailing(contentView.trailingAnchor).0
+            .height(0).1
+        castCollectionHeight = castHeight
+            
+            
+
+        castEmptyLabel
+            .top(tabSeparatorLine.bottomAnchor, 20).0
+            .leading(contentView.leadingAnchor, 16)
+
+        
+        let initialBottom = descriptionLabel
+            .bottom(contentView.bottomAnchor, -32).1
+        contentBottomConstraint = initialBottom
     }
+    
+    
 
     private func makeInfoItem(icon: String) -> (container: UIView, iconView: UIImageView, label: UILabel) {
         let container = UIView()
@@ -332,6 +392,41 @@ final class DetailViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
+    }
+
+    private func fetchCredits() {
+        MovieAppService.shared.castMovies(id: movieId) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let dto):
+                DispatchQueue.main.async {
+                    self.castMembers = dto.cast ?? []
+                    self.castEmptyLabel.isHidden = !self.castMembers.isEmpty
+                    self.castCollectionView.reloadData()
+                    self.updateCastCollectionHeight()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+
+    /// castCollectionView xarici scrollView-in içində olduğu və özü
+    /// sürüşmədiyi üçün (isScrollEnabled = false), hündürlüyünü aktyor
+    /// sayına görə ƏLLƏ hesablayıb constraint-ə yazmalıyıq.
+    private func updateCastCollectionHeight() {
+        let columns: CGFloat = 3
+        let itemHeight: CGFloat = 140
+        let lineSpacing: CGFloat = 20
+        let topBottomInset: CGFloat = 20 // insetForSectionAt: top 10 + bottom 10
+
+        let rows = ceil(CGFloat(castMembers.count) / columns)
+        let height = rows > 0
+            ? rows * itemHeight + max(rows - 1, 0) * lineSpacing + topBottomInset
+            : 0
+
+        castCollectionHeight?.constant = height
+        view.layoutIfNeeded()
     }
 
     private func applyDetail(_ detail: MovieDetailDto) {
@@ -391,15 +486,19 @@ final class DetailViewController: UIViewController {
         updateTabAppearance()
         updateDescriptionForSelectedTab()
 
-        UIView.animate(withDuration: 0.2) {
-            self.tabUnderlineLeading?.isActive = false
-            let leading = self.tabUnderlineView.leadingAnchor.constraint(
-                equalTo: sender.leadingAnchor
-            )
-            leading.isActive = true
-            self.tabUnderlineLeading = leading
+        self.tabUnderlineLeading?.isActive = false
+        let newLeading = self.tabUnderlineView
+            .leadingAnchor.constraint(equalTo: sender.leadingAnchor)
+        newLeading.isActive = true
+        self.tabUnderlineLeading = newLeading
+
+        UIView.animate(withDuration: 0.25) {
             self.view.layoutIfNeeded()
         }
+
+      
+        let topOffset = CGPoint(x: 0, y: -scrollView.adjustedContentInset.top)
+        scrollView.setContentOffset(topOffset, animated: true)
     }
 
     private func updateTabAppearance() {
@@ -410,13 +509,80 @@ final class DetailViewController: UIViewController {
     }
 
     private func updateDescriptionForSelectedTab() {
+        
+        contentBottomConstraint?.isActive = false
+
         switch selectedTab {
         case .about:
+            descriptionLabel.isHidden = false
+            castCollectionView.isHidden = true
+            castEmptyLabel.isHidden = true
             descriptionLabel.text = movieDetail?.overview
+            contentBottomConstraint = descriptionLabel
+            
+                .bottom(contentView.bottomAnchor, -32).1
+
         case .reviews:
+            descriptionLabel.isHidden = false
+            castCollectionView.isHidden = true
+            castEmptyLabel.isHidden = true
             descriptionLabel.text = "Reviews bu ekranda hələ mövcud deyil — TMDB-nin /movie/{id}/reviews endpoint-i əlavə edilməlidir."
+            contentBottomConstraint = descriptionLabel
+            
+                .bottom(contentView.bottomAnchor,  -32).1
+
         case .cast:
-            descriptionLabel.text = "Cast bu ekranda hələ mövcud deyil — TMDB-nin /movie/{id}/credits endpoint-i əlavə edilməlidir."
+            descriptionLabel.isHidden = true
+            castCollectionView.isHidden = false
+            castEmptyLabel.isHidden = !castMembers.isEmpty
+            
+            castCollectionView.reloadData()
+            castCollectionView.collectionViewLayout.invalidateLayout()
+            updateCastCollectionHeight()
+            contentBottomConstraint = castCollectionView
+            
+                .bottom( contentView.bottomAnchor,  -32).1
         }
+        view.layoutIfNeeded()
+
+    }
+}
+
+
+extension DetailViewController : UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let columns: CGFloat = 3
+        let interitemSpacing: CGFloat = 20
+        let sectionInsetLeftRight: CGFloat = 40
+        let availableWidth = collectionView.bounds.width - sectionInsetLeftRight - (columns - 1) * interitemSpacing
+        let width = availableWidth / columns
+        let height: CGFloat = 140
+        return CGSizeMake(width,  height)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        20
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        UIEdgeInsets(
+            top: 10,
+            left: 10,
+            bottom: 10,
+            right: 10
+        )
+    }
+}
+extension DetailViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        castMembers.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CastViewCell.Identifier,
+            for: indexPath
+        ) as? CastViewCell else { return UICollectionViewCell() }
+        cell.configure(with: castMembers[indexPath.item])
+        return cell
     }
 }

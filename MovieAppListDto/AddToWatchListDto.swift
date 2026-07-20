@@ -15,4 +15,5 @@ struct AddToWatchListRequestDto : Codable {
         case mediaId = "media_id"
         case watchList = "watchlist"
     }
+
 }

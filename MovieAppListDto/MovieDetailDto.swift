@@ -61,7 +61,8 @@ struct MovieDetailDto: Decodable {
     }
 
     var primaryGenre: String? {
-        genres?.first?.name
+       let genresNames = genres?.compactMap{( $0.name)} ?? []
+        return genresNames.joined(separator: " ,")
     }
 }
 
@@ -75,3 +76,6 @@ struct DetailDto: Decodable {
         case name = "name"
     }
 }
+
+
+

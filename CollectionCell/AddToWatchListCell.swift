@@ -1,14 +1,14 @@
 //
-//  SearchViewCell.swift
+//  AddToWatchListCell.swift
 //  MovieApp
 //
-//  Created by Kerimov Qehreman on 12.07.26.
+//  Created by Kerimov Qehreman on 16.07.26.
 //
 
 import UIKit
 
-final class SearchViewCell: UICollectionViewCell {
-    static let identifier = "SearchViewCell"
+final class AddToListViewCell: UICollectionViewCell {
+    static let identifier = "AddToWatchListCell"
     
     private var movieDetail: MovieDetailDto?
     private var movieId: Int?
@@ -163,66 +163,68 @@ final class SearchViewCell: UICollectionViewCell {
     
     
     func configure(movieId: Int, posterURL: String?, title: String, rating: Double) {
-        self.movieId = movieId
-        titleLabel.text = title
-        ratingLabel.text = String(format: "%.1f", rating)
-        ratingBadgeView.isHidden = false
-        
-        
-        if let posterURL = posterURL {
-            loadImage(from: posterURL, into: posterThumbnailView)
-        }
-        
-        
-        fetchDetail()
-    }
+           self.movieId = movieId
+           titleLabel.text = title
+           ratingLabel.text = String(format: "%.1f", rating)
+           ratingBadgeView.isHidden = false
+           
+           
+           if let posterURL = posterURL {
+               loadImage(from: posterURL, into: posterThumbnailView)
+           }
+           
+           
+           fetchDetail()
+       }
+       
+       private func fetchDetail() {
+           guard let movieId = movieId else { return }
+           
+           MovieAppService.shared.getMovieDetail(id: movieId) {
+               [weak self] result in
+               guard let self = self,
+               self.movieId == movieId else { return }
+               
+               switch result {
+               case .success(let detail):
+                   DispatchQueue.main.async {
+                       self.movieDetail = detail
+                       self.applyDetail(detail)
+                   }
+               case .failure(let error):
+                   print("Detail yüklənmə xətası: \(error.localizedDescription)")
+               }
+           }
+       }
     
-    private func fetchDetail() {
-        guard let movieId = movieId else { return }
-        
-        MovieAppService.shared.getMovieDetail(id: movieId) { [weak self] result in
-            guard let self = self, self.movieId == movieId else { return }
-            
-            switch result {
-            case .success(let detail):
-                DispatchQueue.main.async {
-                    self.movieDetail = detail
-                    self.applyDetail(detail)
-                }
-            case .failure(let error):
-                print("Detail yüklənmə xətası: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    private func applyDetail(_ detail: MovieDetailDto) {
-        titleLabel.text = detail.title
-        
-        if let ratingText = detail.ratingText {
-            ratingLabel.text = ratingText
-        }
-        
-        yearItem.label.text = detail.releaseYear ?? "-"
-        durationItem.label.text = detail.runtimeText ?? "-"
-        genreItem.label.text = detail.primaryGenre ?? "-"
-    }
-    
-    private func loadImage(from urlString: String, into imageView: UIImageView) {
-        self.lastLoadedImagePath = urlString
-        
-        NetworkManager.shared.loadData(urlString: urlString) { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let data):
-                DispatchQueue.main.async {
-                    if self.lastLoadedImagePath == urlString {
-                        imageView.image = UIImage(data: data)
-                    }
-                }
-            case .failure(let error):
-                print("Şəkil yüklənmə xətası: \(error.localizedDescription)")
-            }
-        }
-    }
-}
+       private func applyDetail(_ detail: MovieDetailDto) {
+           titleLabel.text = detail.title
+           
+           if let ratingText = detail.ratingText {
+               ratingLabel.text = ratingText
+           }
+           
+           yearItem.label.text = detail.releaseYear ?? "-"
+           durationItem.label.text = detail.runtimeText ?? "-"
+           genreItem.label.text = detail.primaryGenre ?? "-"
+       }
+       
+       private func loadImage(from urlString: String, into imageView: UIImageView) {
+           self.lastLoadedImagePath = urlString
+           
+           NetworkManager.shared.loadData(urlString: urlString) { [weak self] result in
+               guard let self = self else { return }
+               
+               switch result {
+               case .success(let data):
+                   DispatchQueue.main.async {
+                       if self.lastLoadedImagePath == urlString {
+                           imageView.image = UIImage(data: data)
+                       }
+                   }
+               case .failure(let error):
+                   print("Şəkil yüklənmə xətası: \(error.localizedDescription)")
+               }
+           }
+       }
+   }
