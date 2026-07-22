@@ -21,26 +21,26 @@ final class TabbarController: UITabBarController {
             
         }
     func homeviewcontroller() -> UIViewController {
-        lazy var controller = ViewController()
+        let controller = ViewController()
         controller.tabBarItem.title = "Home"
         
-        controller.tabBarItem.image = UIImage(systemName: "house")
+        controller.tabBarItem.image = UIImage(systemName: "house")?.withRenderingMode(.alwaysTemplate)
         controller.tabBarItem.selectedImage = UIImage(systemName: "house.fill")
         
         return controller
     }
     func searchViewController() -> UIViewController {
-        lazy var controller = SearchViewController()
+        let controller = SearchViewController()
         controller.tabBarItem.title = "Search"
         controller.tabBarItem.image = UIImage(systemName: "magnifyingglass")
         controller.navigationController?.navigationBar.isHidden = true
         return controller
     }
     func whatchListController() -> UIViewController {
-        lazy var controller = WatchListController()
+        let controller = WatchListController()
         controller.tabBarItem.title = "Watchlist"
-        controller.tabBarItem.image = UIImage(named: "Bookmark")
-        controller.tabBarItem.selectedImage = UIImage(systemName: "rectangle.stack.person.crop.circle.fill")
+        controller.tabBarItem.image = UIImage(named: "Bookmark")?
+            .withRenderingMode(.alwaysTemplate)
         return controller
     }
 

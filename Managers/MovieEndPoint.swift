@@ -68,7 +68,7 @@ enum MovieEndPoint : EndPoint {
                 .init(name: "page", value: "\(page)")
             ]
        
-        case .castMovies(id: let id):
+        case .castMovies( _):
             return []
         }
         

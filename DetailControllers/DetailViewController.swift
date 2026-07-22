@@ -12,7 +12,7 @@ final class DetailViewController: UIViewController {
     
     private enum DetailTab: Int , CaseIterable {
         case about, reviews, cast
-
+        
         var title: String {
             switch self {
             case .about: return "About Movie"
@@ -21,43 +21,44 @@ final class DetailViewController: UIViewController {
             }
         }
     }
-
+    
     private let movieId: Int
     private var selectedTab: DetailTab = .about
-    
-    
-    private var isBookmarked = false
-    private var movieDetail: MovieDetailDto?
-    
-    private var castMembers: [CastDto] = []
-
-    private var tabUnderlineLeading: NSLayoutConstraint?
-    private var tabButtons: [UIButton] = []
-    
-    private var contentBottomConstraint: NSLayoutConstraint?
-    private var castCollectionHeight: NSLayoutConstraint?
-
-    
 
     init(movieId: Int) {
         self.movieId = movieId
         super.init(nibName: nil, bundle: nil)
     }
-
+    
+    private var isBookmarked = false
+    private var movieDetail: MovieDetailDto?
+    
+    private var castMembers: [CastDto] = []
+    
+    private var tabUnderlineLeading: NSLayoutConstraint?
+    private var tabButtons: [UIButton] = []
+    
+    private var contentBottomConstraint: NSLayoutConstraint?
+    private var castCollectionHeight: NSLayoutConstraint?
+    
+    
+    
+    
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
     
-
+    
+    
     private lazy var scrollView: UIScrollView = {
         let scroll = UIScrollView()
         scroll.showsVerticalScrollIndicator = false
         return scroll
     }()
-
+    
     private lazy var contentView = UIView()
-
+    
     private lazy var backdropImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -66,7 +67,7 @@ final class DetailViewController: UIViewController {
         imageView.backgroundColor = .darkGray
         return imageView
     }()
-
+    
     private lazy var posterThumbnailView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -76,7 +77,7 @@ final class DetailViewController: UIViewController {
         imageView.backgroundColor = .gray
         return imageView
     }()
-
+    
     private lazy var ratingBadgeView: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [ratingIcon , ratingLabel])
         stack.backgroundColor = .mainBackground
@@ -86,21 +87,21 @@ final class DetailViewController: UIViewController {
         stack.alignment = .center
         return stack
     }()
-
+    
     private lazy var ratingIcon: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "star.fill"))
         imageView.tintColor = .systemOrange
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-
+    
     private lazy var ratingLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .white
         return label
     }()
-
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .bold)
@@ -108,11 +109,11 @@ final class DetailViewController: UIViewController {
         label.numberOfLines = 2
         return label
     }()
-
+    
     private lazy var yearItem = makeInfoItem(icon: "calendar")
     private lazy var durationItem = makeInfoItem(icon: "clock")
     private lazy var genreItem = makeInfoItem(icon: "theatermasks")
-
+    
     private lazy var infoStackView: UIStackView = {
         let separator1 = makeSeparatorLabel()
         let separator2 = makeSeparatorLabel()
@@ -128,7 +129,7 @@ final class DetailViewController: UIViewController {
         stack.alignment = .center
         return stack
     }()
-
+    
     private lazy var tabStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
@@ -136,19 +137,19 @@ final class DetailViewController: UIViewController {
         stack.alignment = .fill
         return stack
     }()
-
+    
     private lazy var tabUnderlineView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.white.withAlphaComponent(0.75)
         return view
     }()
-
+    
     private lazy var tabSeparatorLine: UIView = {
         let view = UIView()
         view.backgroundColor = .white
         return view
     }()
-
+    
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -156,9 +157,9 @@ final class DetailViewController: UIViewController {
         label.numberOfLines = 0
         return label
     }()
-
     
-
+    
+    
     private lazy var castCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -176,7 +177,7 @@ final class DetailViewController: UIViewController {
             )
         return collection
     }()
-
+    
     private lazy var castEmptyLabel: UILabel = {
         let label = UILabel()
         label.text = "Don't have any cast."
@@ -185,9 +186,9 @@ final class DetailViewController: UIViewController {
         label.isHidden = true
         return label
     }()
-
     
-
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mainBackground
@@ -198,9 +199,9 @@ final class DetailViewController: UIViewController {
         fetchDetail()
         fetchCredits()
     }
-
     
-
+    
+    
     private func setupNavigationBar() {
         title = "Detail"
         navigationController?.navigationBar.tintColor = .white
@@ -213,7 +214,7 @@ final class DetailViewController: UIViewController {
         )
         navigationItem.rightBarButtonItem = bookmarkButton
     }
-
+    
     private func setupTabs() {
         DetailTab.allCases.forEach { tab in
             let button = UIButton(type: .system)
@@ -226,11 +227,11 @@ final class DetailViewController: UIViewController {
         }
         updateTabAppearance()
     }
-
+    
     private func setupHierarchy() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-
+        
         contentView.addSubviews(
             backdropImageView,
             posterThumbnailView,
@@ -245,14 +246,14 @@ final class DetailViewController: UIViewController {
         )
         tabSeparatorLine.addSubview(tabUnderlineView)
     }
-
+    
     private func setupLayout() {
         scrollView
             .top(view.safeAreaLayoutGuide.topAnchor).0
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
-
+        
         contentView
             .top(scrollView.topAnchor).0
             .leading(scrollView.leadingAnchor).0
@@ -265,13 +266,13 @@ final class DetailViewController: UIViewController {
             .leading(contentView.leadingAnchor).0
             .trailing(contentView.trailingAnchor).0
             .height(210)
-
+        
         posterThumbnailView
             .leading(contentView.leadingAnchor, 20).0
             .centerY(backdropImageView.bottomAnchor).0
             .width(95).0
             .height(120)
-
+        
         ratingBadgeView
             .bottom(backdropImageView.bottomAnchor, -12).0
             .trailing(backdropImageView.trailingAnchor, -12).0
@@ -283,62 +284,63 @@ final class DetailViewController: UIViewController {
             .centerY(ratingBadgeView.centerYAnchor).0
             .width(14).0
             .height(14)
-
+        
         ratingLabel
             .leading(ratingIcon.trailingAnchor, 4).0
             .trailing(ratingBadgeView.trailingAnchor, -10).0
             .centerY(ratingBadgeView.centerYAnchor)
-
+        
         titleLabel
             .top(backdropImageView.bottomAnchor, 16).0
             .leading(posterThumbnailView.trailingAnchor, 16).0
             .trailing(contentView.trailingAnchor, -16)
-
+        
         infoStackView
             .top(posterThumbnailView.bottomAnchor, 16).0
             .leading(contentView.leadingAnchor, 16).0
             .height(20)
-
+        
         tabStackView
             .top(infoStackView.bottomAnchor, 28).0
             .leading(contentView.leadingAnchor, 16).0
             .trailing(contentView.trailingAnchor, -16).0
             .height(30)
-
+        
         tabSeparatorLine
             .top(tabStackView.bottomAnchor, 8).0
             .leading(contentView.leadingAnchor, 16).0
             .trailing(contentView.trailingAnchor, -16).0
             .height(2)
-
-       
-        tabUnderlineView
-            .height(2).0
-            .centerY(tabSeparatorLine.centerYAnchor).0
-            .width(tabSeparatorLine.widthAnchor, 1.0 / CGFloat(DetailTab.allCases.count))
-        let initialUnderlineLeading = tabUnderlineView
-            .leading(tabSeparatorLine.leadingAnchor).1
         
-        tabUnderlineLeading = initialUnderlineLeading
+        
+        tabUnderlineLeading = tabUnderlineView
+            .top(tabSeparatorLine.topAnchor).0
+            .height(2).0
+            .leading(tabStackView.leadingAnchor).1
+        
+        tabUnderlineView
+            .width( tabStackView.widthAnchor , multiplier: 1.0 / CGFloat(
+                DetailTab.allCases.count))
+        
         
         descriptionLabel
             .top(tabSeparatorLine.bottomAnchor, 20).0
             .leading(contentView.leadingAnchor, 16).0
             .trailing(contentView.trailingAnchor, -16)
-
+        
         let castHeight = castCollectionView
             .top(tabSeparatorLine.bottomAnchor, 20).0
             .leading(contentView.leadingAnchor).0
             .trailing(contentView.trailingAnchor).0
             .height(0).1
         castCollectionHeight = castHeight
-            
-            
-
+        
+        
+        
         castEmptyLabel
             .top(tabSeparatorLine.bottomAnchor, 20).0
             .leading(contentView.leadingAnchor, 16)
-
+        
         
         let initialBottom = descriptionLabel
             .bottom(contentView.bottomAnchor, -32).1
@@ -346,17 +348,30 @@ final class DetailViewController: UIViewController {
     }
     
     
-
+    private func fetchDetail() {
+        MovieAppService.shared.getMovieDetail(id: movieId) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let detail):
+                DispatchQueue.main.async {
+                    self.movieDetail = detail
+                    self.applyDetail(detail)
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
     private func makeInfoItem(icon: String) -> (container: UIView, iconView: UIImageView, label: UILabel) {
         let container = UIView()
         let iconView = UIImageView(image: UIImage(systemName: icon))
         iconView.tintColor = UIColor.white.withAlphaComponent(0.7)
         iconView.contentMode = .scaleAspectFit
-
+        
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.white.withAlphaComponent(0.7)
-
+        
         container.addSubviews(iconView, label)
         iconView
             .top(container.topAnchor).0
@@ -368,10 +383,10 @@ final class DetailViewController: UIViewController {
             .leading(iconView.trailingAnchor, 6).0
             .trailing(container.trailingAnchor).0
             .centerY(iconView.centerYAnchor)
-
+        
         return (container, iconView, label)
     }
-
+    
     private func makeSeparatorLabel() -> UILabel {
         let label = UILabel()
         label.text = "|"
@@ -379,20 +394,9 @@ final class DetailViewController: UIViewController {
         label.textColor = UIColor.white.withAlphaComponent(0.3)
         return label
     }
-
     
-    private func fetchDetail() {
-        MovieAppService.shared.getMovieDetail(id: movieId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let detail):
-                self.movieDetail = detail
-                self.applyDetail(detail)
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }
+    
+    
 
     private func fetchCredits() {
         MovieAppService.shared.castMovies(id: movieId) { [weak self] result in
@@ -458,39 +462,52 @@ final class DetailViewController: UIViewController {
 
 
     @objc private func bookmarkTapped() {
-        isBookmarked.toggle()
-        let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
-        navigationItem.rightBarButtonItem?.image = UIImage(systemName: imageName)
+        let newState = !isBookmarked
+        setBookmarkUI(isBookmarked: newState)
 
-        guard isBookmarked else { return }
         let requestModel = AddToWatchListRequestDto(
             mediaType: "movie",
             mediaId: movieId,
-            watchList: true
+            watchList: newState
         )
-        AccountApiService.shared.addToWathchList(requestModel: requestModel) { result in
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                print(error.localizedDescription)
+        AccountApiService.shared.addToWathchList(requestModel: requestModel) { [weak self] result in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let model):
+                    if model.success != true {
+                        // Server rejected it — roll the icon back to what it was before the tap.
+                        self.setBookmarkUI(isBookmarked: !newState)
+                        print(model.localizedDescription)
+                    }
+                case .failure(let error):
+                    self.setBookmarkUI(isBookmarked: !newState)
+                    print(error.localizedDescription)
+                }
             }
         }
     }
 
+    private func setBookmarkUI(isBookmarked: Bool) {
+        self.isBookmarked = isBookmarked
+        let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
+        navigationItem.rightBarButtonItem?.image = UIImage(systemName: imageName)
+    }
+       
     @objc private func tabTapped(_ sender: UIButton) {
         guard let tab = DetailTab(rawValue: sender.tag) else { return }
         selectedTab = tab
         updateTabAppearance()
         updateDescriptionForSelectedTab()
-
-        self.tabUnderlineLeading?.isActive = false
-        let newLeading = self.tabUnderlineView
-            .leadingAnchor.constraint(equalTo: sender.leadingAnchor)
-        newLeading.isActive = true
-        self.tabUnderlineLeading = newLeading
-
         UIView.animate(withDuration: 0.25) {
+            
+        
+        self.tabUnderlineLeading?.isActive = false
+        let leading = self.tabUnderlineView
+            .leadingAnchor.constraint(equalTo: sender.leadingAnchor)
+        leading.isActive = true
+        self.tabUnderlineLeading = leading
+            self.tabUnderlineLeading?.constant = self.tabStackView.frame.width / 3 * CGFloat(sender.tag)
             self.view.layoutIfNeeded()
         }
 

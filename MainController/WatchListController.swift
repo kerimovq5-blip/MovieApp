@@ -27,8 +27,8 @@ final class WatchListController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(
-            SearchViewCell.self,
-            forCellWithReuseIdentifier: "cell"
+            AddToListViewCell.self,
+            forCellWithReuseIdentifier: AddToListViewCell.identifier
         )
         return collectionView
     }()
@@ -39,7 +39,12 @@ final class WatchListController: UIViewController {
         setupNavigationBar()
         setUp()
         setConstraints()
-        
+        fetchWatchlist()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchWatchlist()
     }
 
     private func setupNavigationBar() {
@@ -58,26 +63,27 @@ final class WatchListController: UIViewController {
         
 
         collectionView
-            .top(view.bottomAnchor, 16).0
+            .top(view.safeAreaLayoutGuide.topAnchor, 16).0
             .leading(view.leadingAnchor).0
             .trailing(view.trailingAnchor).0
             .bottom(view.bottomAnchor)
     }
 
 
-    private func performSearch(query: String) {
-        MovieAppService.shared.searchMovies(query: query) {
-            [weak self] result in
+    private func fetchWatchlist() {
+        AccountApiService.shared.getWatchList(page: 1) { [weak self] (result: Result<SearchMovieDto, Error>) in
             guard let self else { return }
-            switch result {
-            case .success(let dto):
-                self.viewModels = dto.results?.compactMap {
-                    movie -> (posterUrl: String, title: String, rating: Double, id: Int)? in
-                    guard let url = movie.posterUrl?.absoluteString, let id = movie.id else { return nil }
-                    return (url, movie.title ?? "", movie.voteAverage ?? 0, id)
-                } ?? []
-            case .failure(let error):
-                print(error.localizedDescription)
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let dto):
+                    self.viewModels = dto.results?.compactMap {
+                        movie -> (posterUrl: String, title: String, rating: Double, id: Int)? in
+                        guard let id = movie.id else { return nil }
+                        return (movie.posterUrl?.absoluteString ?? "", movie.title ?? "", movie.voteAverage ?? 0, id)
+                    } ?? []
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
             }
         }
     }

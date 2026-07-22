@@ -12,7 +12,7 @@ enum MovieListViewState {
     case message(String)
 }
 
-protocol MovieListViewModel {
+protocol MovieListViewModel : AnyObject {
     var callBack: ((MovieListViewState) -> Void)? { get set }
     var movies: [MovieDto] { get }
     func getMovies()

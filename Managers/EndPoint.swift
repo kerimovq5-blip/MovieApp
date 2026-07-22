@@ -31,7 +31,7 @@ struct ErrorModel : Decodable  ,Error {
     let statusmessage: String?
     let success: Bool?
     
-    enum Codingkeys : String  , CodingKey{
+    enum CodingKeys: String, CodingKey {
         case statuscode = "status_code"
         case statusmessage = "status_message"
         case success = "success"
