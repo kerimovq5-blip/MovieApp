@@ -72,7 +72,7 @@ final class SearchViewController: UIViewController {
         
     }
 
-    private func setupNavigationBar() {
+    private  func setupNavigationBar() {
         title = "Search"
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]

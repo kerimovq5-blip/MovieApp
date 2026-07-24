@@ -34,12 +34,14 @@ final class DetailViewController: UIViewController {
     private var movieDetail: MovieDetailDto?
     
     private var castMembers: [CastDto] = []
+    private var reviews: [ReviewCellDto] = []
     
     private var tabUnderlineLeading: NSLayoutConstraint?
     private var tabButtons: [UIButton] = []
     
     private var contentBottomConstraint: NSLayoutConstraint?
     private var castCollectionHeight: NSLayoutConstraint?
+    private var reviewsTableHeight: NSLayoutConstraint?
     
     
     
@@ -187,7 +189,32 @@ final class DetailViewController: UIViewController {
         return label
     }()
     
-    
+    private lazy var reviewCollectionView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .clear
+        tableView.showsVerticalScrollIndicator = false
+        tableView.isScrollEnabled = false
+        tableView.separatorStyle = .none
+        tableView.isHidden = true
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 120
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(
+            ReviewTableviewCell.self,
+            forCellReuseIdentifier: ReviewTableviewCell.identifier
+        )
+        return tableView
+    }()
+
+    private lazy var reviewsEmptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Don't have any reviews."
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textColor = UIColor.white.withAlphaComponent(0.5)
+        label.isHidden = true
+        return label
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -199,6 +226,7 @@ final class DetailViewController: UIViewController {
         accountStates()
         fetchDetail()
         fetchCredits()
+        reviewsMovies()
     }
     
     
@@ -243,7 +271,9 @@ final class DetailViewController: UIViewController {
             tabSeparatorLine,
             descriptionLabel,
             castCollectionView,
-            castEmptyLabel
+            castEmptyLabel,
+            reviewCollectionView,
+            reviewsEmptyLabel
         )
         tabSeparatorLine.addSubview(tabUnderlineView)
     }
@@ -341,8 +371,18 @@ final class DetailViewController: UIViewController {
         castEmptyLabel
             .top(tabSeparatorLine.bottomAnchor, 20).0
             .leading(contentView.leadingAnchor, 16)
-        
-        
+
+        let reviewsHeight = reviewCollectionView
+            .top(tabSeparatorLine.bottomAnchor, 20).0
+            .leading(contentView.leadingAnchor).0
+            .trailing(contentView.trailingAnchor).0
+            .height(0).1
+        reviewsTableHeight = reviewsHeight
+
+        reviewsEmptyLabel
+            .top(tabSeparatorLine.bottomAnchor, 20).0
+            .leading(contentView.leadingAnchor, 16)
+
         let initialBottom = descriptionLabel
             .bottom(contentView.bottomAnchor, -32).1
         contentBottomConstraint = initialBottom
@@ -405,10 +445,9 @@ final class DetailViewController: UIViewController {
             switch result {
             case .success(let dto):
                 DispatchQueue.main.async {
-                    self.castMembers = dto.cast ?? []
+                    self.castMembers = (dto.cast ?? []).filter { $0.profileUrl != nil }
                     self.castEmptyLabel.isHidden = !self.castMembers.isEmpty
                     self.castCollectionView.reloadData()
-                    self.castMembers = (dto.cast ?? []).filter { $0.profileUrl != nil }
                     self.updateCastCollectionHeight()
                 }
             case .failure(let error):
@@ -430,6 +469,30 @@ final class DetailViewController: UIViewController {
             }
             
         })
+    }
+    private func reviewsMovies() {
+        MovieAppService.shared.reviewsMovies(id: movieId, completion: {
+            [weak self] result in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let dto):
+                    self.reviews = dto.results ?? []
+                case .failure(let error):
+                    print(error.localizedDescription)
+                    self.reviews = []
+                }
+                self.reviewsEmptyLabel.isHidden = !self.reviews.isEmpty
+                self.reviewCollectionView.reloadData()
+                self.updateReviewsTableHeight()
+            }
+        })
+    }
+
+    private func updateReviewsTableHeight() {
+        reviewCollectionView.layoutIfNeeded()
+        reviewsTableHeight?.constant = reviewCollectionView.contentSize.height
+        view.layoutIfNeeded()
     }
     private func configureWatchListButton() {
         let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
@@ -551,24 +614,32 @@ final class DetailViewController: UIViewController {
             descriptionLabel.isHidden = false
             castCollectionView.isHidden = true
             castEmptyLabel.isHidden = true
+            reviewCollectionView.isHidden = true
+            reviewsEmptyLabel.isHidden = true
             descriptionLabel.text = movieDetail?.overview
             contentBottomConstraint = descriptionLabel
             
                 .bottom(contentView.bottomAnchor, -32).1
 
         case .reviews:
-            descriptionLabel.isHidden = false
+            descriptionLabel.isHidden = true
             castCollectionView.isHidden = true
             castEmptyLabel.isHidden = true
-            descriptionLabel.text = "Reviews bu ekranda hələ mövcud deyil — TMDB-nin /movie/{id}/reviews endpoint-i əlavə edilməlidir."
-            contentBottomConstraint = descriptionLabel
+            reviewCollectionView.isHidden = false
+            reviewsEmptyLabel.isHidden = !reviews.isEmpty
+
+            reviewCollectionView.reloadData()
+            updateReviewsTableHeight()
+            contentBottomConstraint = reviewCollectionView
             
-                .bottom(contentView.bottomAnchor,  -32).1
+                .bottom(contentView.bottomAnchor, -32).1
 
         case .cast:
             descriptionLabel.isHidden = true
             castCollectionView.isHidden = false
             castEmptyLabel.isHidden = !castMembers.isEmpty
+            reviewCollectionView.isHidden = true
+            reviewsEmptyLabel.isHidden = true
             
             castCollectionView.reloadData()
             castCollectionView.collectionViewLayout.invalidateLayout()
@@ -618,5 +689,28 @@ extension DetailViewController: UICollectionViewDataSource {
         ) as? CastViewCell else { return UICollectionViewCell() }
         cell.configure(with: castMembers[indexPath.item])
         return cell
+    }
+}
+
+extension DetailViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        reviews.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ReviewTableviewCell.identifier,
+            for: indexPath
+        ) as? ReviewTableviewCell else {
+            return UITableViewCell()
+        }
+        cell.configureModel(with: reviews[indexPath.row])
+        return cell
+    }
+}
+
+extension DetailViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        UITableView.automaticDimension
     }
 }

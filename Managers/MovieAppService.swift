@@ -98,4 +98,14 @@ final class MovieAppService {
                 .accountStates(id: id),
             completion: completion)
     }
+    
+    func reviewsMovies(
+        id: Int,
+        completion: @escaping (Result<ReviewsDto, Error>) -> Void
+    ) {
+        NetworkManager.shared.request(
+            endPoint: MovieEndPoint
+                .reviewsMovies(id: id),
+            completion: completion)
+    }
 }
