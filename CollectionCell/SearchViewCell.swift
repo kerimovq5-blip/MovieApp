@@ -126,6 +126,8 @@ final class SearchViewCell: UICollectionViewCell {
             
     }
     
+    
+    
     private func makeInfoItem(icon: String) -> (container: UIView, iconView: UIImageView, label: UILabel) {
         let container = UIView()
         let iconView = UIImageView(image: UIImage(systemName: icon))

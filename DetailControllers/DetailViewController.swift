@@ -30,7 +30,7 @@ final class DetailViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    private var isBookmarked = false
+    private var isBookmarked: Bool = false
     private var movieDetail: MovieDetailDto?
     
     private var castMembers: [CastDto] = []
@@ -196,6 +196,7 @@ final class DetailViewController: UIViewController {
         setupTabs()
         setupHierarchy()
         setupLayout()
+        accountStates()
         fetchDetail()
         fetchCredits()
     }
@@ -407,6 +408,7 @@ final class DetailViewController: UIViewController {
                     self.castMembers = dto.cast ?? []
                     self.castEmptyLabel.isHidden = !self.castMembers.isEmpty
                     self.castCollectionView.reloadData()
+                    self.castMembers = (dto.cast ?? []).filter { $0.profileUrl != nil }
                     self.updateCastCollectionHeight()
                 }
             case .failure(let error):
@@ -415,7 +417,24 @@ final class DetailViewController: UIViewController {
         }
     }
 
-    
+    private func accountStates() {
+        MovieAppService.shared.accountStates(id: movieId , completion: {
+            [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let dto):
+                self.isBookmarked = dto.watchlist ?? false
+                self.configureWatchListButton()
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+            
+        })
+    }
+    private func configureWatchListButton() {
+        let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
+        navigationItem.rightBarButtonItem?.image = UIImage(systemName: imageName)
+    }
     private func updateCastCollectionHeight() {
         let columns: CGFloat = 3
         let itemHeight: CGFloat = 140
@@ -463,7 +482,8 @@ final class DetailViewController: UIViewController {
 
     @objc private func bookmarkTapped() {
         let newState = !isBookmarked
-        setBookmarkUI(isBookmarked: newState)
+        isBookmarked = newState
+        configureWatchListButton()
 
         let requestModel = AddToWatchListRequestDto(
             mediaType: "movie",
@@ -476,23 +496,22 @@ final class DetailViewController: UIViewController {
                 switch result {
                 case .success(let model):
                     if model.success != true {
-                        // Server rejected it — roll the icon back to what it was before the tap.
-                        self.setBookmarkUI(isBookmarked: !newState)
+                        self.isBookmarked = !newState
+                        self.configureWatchListButton()
                         print(model.localizedDescription)
+                    } else {
+                        self.accountStates()
                     }
                 case .failure(let error):
-                    self.setBookmarkUI(isBookmarked: !newState)
+                    self.isBookmarked = !newState
+                    self.configureWatchListButton()
                     print(error.localizedDescription)
                 }
             }
         }
     }
 
-    private func setBookmarkUI(isBookmarked: Bool) {
-        self.isBookmarked = isBookmarked
-        let imageName = isBookmarked ? "bookmark.fill" : "bookmark"
-        navigationItem.rightBarButtonItem?.image = UIImage(systemName: imageName)
-    }
+    
        
     @objc private func tabTapped(_ sender: UIButton) {
         guard let tab = DetailTab(rawValue: sender.tag) else { return }
