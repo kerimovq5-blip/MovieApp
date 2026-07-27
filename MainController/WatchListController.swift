@@ -36,10 +36,10 @@ final class WatchListController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         setUp()
         setConstraints()
         fetchWatchlist()
+        setupNavigationBar()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -48,7 +48,7 @@ final class WatchListController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        title = "WathcList"
+        title = "Wathc List"
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         

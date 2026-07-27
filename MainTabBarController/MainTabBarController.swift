@@ -15,8 +15,8 @@ final class TabbarController: UITabBarController {
         
         viewControllers = [
             homeviewcontroller(),
-            searchViewController(),
-            whatchListController()
+            searchNavigation(),
+            watchlistNavigation()
         ]
             
         }
@@ -29,21 +29,24 @@ final class TabbarController: UITabBarController {
         
         return controller
     }
-    func searchViewController() -> UIViewController {
+    private func searchNavigation() -> UIViewController {
         let controller = SearchViewController()
-        controller.tabBarItem.title = "Search"
-        controller.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-        controller.navigationController?.navigationBar.isHidden = true
-        return controller
-    }
-    func whatchListController() -> UIViewController {
-        let controller = WatchListController()
-        controller.tabBarItem.title = "Watchlist"
-        controller.tabBarItem.image = UIImage(named: "Bookmark")?
-            .withRenderingMode(.alwaysTemplate)
-        return controller
+        let navigation = UINavigationController(rootViewController: controller)
+        navigation.tabBarItem.title = "Search"
+        navigation.tabBarItem.image = UIImage(systemName: "magnifyingglass")
+        navigation.navigationBar.isHidden = true
+        return navigation
     }
 
+    private func watchlistNavigation() -> UIViewController {
+        let controller = WatchListController()
+        let navigation = UINavigationController(rootViewController: controller)
+        navigation.tabBarItem.title = "Watch list"
+        navigation.tabBarItem.image = UIImage(named: "Bookmark")?
+            .withRenderingMode(.alwaysTemplate)
+        return navigation
+    }
             
     }
+
 
